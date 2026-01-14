@@ -2,7 +2,7 @@
   "Group": "com.rmaafs",
   "Name": "WelcomeTale",
   "Version": "1.0.5",
-  "Description": "A Hytale server plugin that broadcasts custom welcome messages when players join your server.",
+  "Description": "A Hytale server plugin that disables the default join message broadcast and displays custom welcome messages when players join your server.",
   "Authors": [
     {
       "Name": "Rodrigo Maafs",

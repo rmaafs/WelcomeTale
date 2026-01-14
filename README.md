@@ -1,6 +1,6 @@
 # WelcomeTale
 
-A Hytale server plugin that broadcasts custom welcome messages when players join your server.
+A Hytale server plugin that disables the default join message broadcast and displays custom welcome messages when players join your server.
 
 ![alt text](docs/image.png)
 
