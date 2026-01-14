@@ -10,6 +10,17 @@ WelcomeTale is a plugin for Hytale that enhances the player experience by sendin
 
 [GitHub Repository](https://github.com/rmaafs/WelcomeTale)
 
+## Where to Download
+
+You can download WelcomeTale from multiple platforms:
+
+- **[GitHub Releases](https://github.com/rmaafs/WelcomeTale/releases)** - Official releases
+- **[CurseForge](https://legacy.curseforge.com/hytale/mods/welcometale)** - Hytale mod repository
+- **[ModTale](https://modtale.net/mod/welcometale)** - Community mod platform
+- **[Unified Hytale](https://www.unifiedhytale.com/)** - _Coming soon!_
+
+**📢 Want us to publish on another platform?** Let us know which one you'd like to see!
+
 ## Features
 
 - Custom welcome messages when players join the server
