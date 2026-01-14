@@ -37,7 +37,7 @@ public class WelcomeTaleConfig {
                         .add()
                         .build();
 
-        private String message = "&7Welcome &a{player} to the server!";
+        private String message = "&7Welcome &a{player} &7to the server!";
         private boolean disableJoinMessage = true;
         private String messageReloaded = "&aConfiguration reloaded successfully!";
         private String noPermission = "&cYou don't have permission to use this command!";

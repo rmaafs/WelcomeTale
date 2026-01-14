@@ -126,3 +126,19 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
+
+      - name: Update release tag
+        if: github.event_name == 'release'
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG_NAME="v$VERSION"
+
+          # Delete the old tag locally and remotely
+          git tag -d "$TAG_NAME" || true
+          git push origin ":refs/tags/$TAG_NAME" || true
+
+          # Create new tag pointing to the updated commit
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+          echo "Tag $TAG_NAME updated to point to commit with version changes"
