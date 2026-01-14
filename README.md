@@ -196,6 +196,22 @@ This is just the beginning of a great journey in the era of creating plugins for
 
 If you encounter any **bugs** or have **new ideas** for features, please [open an issue](../../issues) on this repository. Your feedback and contributions are highly appreciated as we build together the Hytale modding ecosystem.
 
+---
+
+## 🌟 Show Your Support
+
+If you find this plugin useful, please consider:
+
+- ⭐ **Star this repository** to show your support and help others discover it!
+- 👀 **Follow [@rmaafs](https://github.com/rmaafs)** on GitHub to stay updated on future Hytale plugins and projects
+- ☕ **Buy me a coffee** on [PayPal](https://paypal.me/royendero) to support continued development
+
+### 🎨 Need a Custom Plugin?
+
+I'm available for **custom plugin development**! If you need a specific plugin tailored to your server's needs or want a private, custom solution, feel free to reach out. Let's bring your ideas to life!
+
+---
+
 ## License
 
 This project is provided as-is for use with Hytale servers.
