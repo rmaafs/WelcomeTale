@@ -8,6 +8,8 @@ A Hytale server plugin that disables the default join message broadcast and disp
 
 WelcomeTale is a plugin for Hytale that enhances the player experience by sending customizable welcome messages to players when someone joins the server. You can personalize the message format with colors and multiple lines, and control whether default join/quit messages are displayed.
 
+[GitHub Repository](https://github.com/rmaafs/WelcomeTale)
+
 ## Features
 
 - Custom welcome messages when players join the server
@@ -24,7 +26,7 @@ WelcomeTale is a plugin for Hytale that enhances the player experience by sendin
 
 ### Installation
 
-1. Download the latest release from the [Releases](../../releases) page
+1. Download the latest release from the [Releases](https://github.com/rmaafs/WelcomeTale/releases) page
 2. Place the `WelcomeTale-x.x.x.jar` file in your Hytale server's `mods` folder
 3. Start your server
 4. The plugin will automatically create a folder at `mods/com.rmaafs_WelcomeTale`
@@ -194,7 +196,7 @@ WelcomeTale/
 
 This is just the beginning of a great journey in the era of creating plugins for Hytale! I'm open to working on whatever is needed to improve this plugin and help the community.
 
-If you encounter any **bugs** or have **new ideas** for features, please [open an issue](../../issues) on this repository. Your feedback and contributions are highly appreciated as we build together the Hytale modding ecosystem.
+If you encounter any **bugs** or have **new ideas** for features, please [open an issue](https://github.com/rmaafs/WelcomeTale/issues) on this repository. Your feedback and contributions are highly appreciated as we build together the Hytale modding ecosystem.
 
 ---
 
