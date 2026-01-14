@@ -1,0 +1,128 @@
+name: Build and Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build (e.g., v1.0.2 or 1.0.2)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup SSH for private repository
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.HYTALE_SERVER_DEPLOY_KEY }}
+
+      - name: Checkout HytaleServer dependency
+        if: steps.cache-hytale.outputs.cache-hit != 'true'
+        run: |
+          git clone git@github.com:rmaafs/hytale-server-file.git hytale-server-dep
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: "25"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Cache HytaleServer dependency
+        id: cache-hytale
+        uses: actions/cache@v4
+        with:
+          path: hytale-server-dep
+          key: hytale-server-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            hytale-server-
+
+      - name: Get release version
+        id: get_version
+        run: |
+          # Use manual input if available, otherwise use release tag
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          # Remove 'v' prefix if present
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Update version in pom.xml
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          sed -i "0,/<version>.*<\/version>/s//<version>$VERSION<\/version>/" pom.xml
+          echo "Updated pom.xml version to $VERSION"
+          head -n 20 pom.xml
+
+      - name: Update version in config.json
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" src/main/resources/config.json
+
+      - name: Update version in manifest.json
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          sed -i "s/\"Version\": \".*\"/\"Version\": \"$VERSION\"/" src/main/resources/manifest.json
+
+      - name: Verify version changes
+        run: |
+          echo "=== pom.xml (first 15 lines) ==="
+          head -n 15 pom.xml
+          echo ""
+          echo "=== config.json ==="
+          cat src/main/resources/config.json
+          echo ""
+          echo "=== manifest.json ==="
+          cat src/main/resources/manifest.json
+
+      - name: Set environment variables for Maven
+        run: |
+          echo "HYTALE_SERVER_JAR=${{ github.workspace }}/hytale-server-dep/HytaleServer.jar" >> $GITHUB_ENV
+          echo "HYTALE_MODS_DIR=${{ github.workspace }}/target/mods" >> $GITHUB_ENV
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Get JAR filename
+        id: jar_file
+        run: |
+          JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" | head -n 1)
+          JAR_NAME=$(basename "$JAR_FILE")
+          echo "path=$JAR_FILE" >> $GITHUB_OUTPUT
+          echo "name=$JAR_NAME" >> $GITHUB_OUTPUT
+          echo "JAR file: $JAR_NAME"
+
+      - name: Upload JAR to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.jar_file.outputs.path }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit version changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add pom.xml src/main/resources/config.json src/main/resources/manifest.json
+          git diff --staged --quiet || git commit -m "chore: bump version to ${{ steps.get_version.outputs.version }}"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main

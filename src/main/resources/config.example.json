@@ -1,0 +1,10 @@
+{
+  "Message": [
+    "&8&l--------------------------------------",
+    "&r&7Welcome &e{player} &7to the server!",
+    "&r&8&l--------------------------------------"
+  ],
+  "DisableJoinMessage": true,
+  "MessageReloaded": "&aConfiguration reloaded successfully!",
+  "NoPermission": "&cYou don't have permission to use this command!"
+}
