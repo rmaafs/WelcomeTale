@@ -1,7 +1,7 @@
 {
   "Group": "com.rmaafs",
   "Name": "WelcomeTale",
-  "Version": "1.0.4",
+  "Version": "1.0.5",
   "Description": "A Hytale server plugin that broadcasts custom welcome messages when players join your server.",
   "Authors": [
     {
