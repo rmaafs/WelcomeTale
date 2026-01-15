@@ -19,13 +19,17 @@ public class WelcomeTaleConfig {
 
         public static final BuilderCodec<WelcomeTaleConfig> CODEC = BuilderCodec
                         .builder(WelcomeTaleConfig.class, WelcomeTaleConfig::new)
-                        .append(new KeyedCodec<String>("Message", MESSAGE_CODEC),
-                                        (config, value, info) -> config.message = value,
-                                        (config, info) -> config.message)
+                        .append(new KeyedCodec<String>("JoinMessage", MESSAGE_CODEC),
+                                        (config, value, info) -> config.joinMessage = value,
+                                        (config, info) -> config.joinMessage)
                         .add()
-                        .append(new KeyedCodec<Boolean>("DisableJoinMessage", Codec.BOOLEAN),
-                                        (config, value, info) -> config.disableJoinMessage = value,
-                                        (config, info) -> config.disableJoinMessage)
+                        .append(new KeyedCodec<String>("WelcomePlayerMessage", MESSAGE_CODEC),
+                                        (config, value, info) -> config.welcomePlayerMessage = value,
+                                        (config, info) -> config.welcomePlayerMessage)
+                        .add()
+                        .append(new KeyedCodec<Boolean>("DisableDefaultJoinMessage", Codec.BOOLEAN),
+                                        (config, value, info) -> config.disableDefaultJoinMessage = value,
+                                        (config, info) -> config.disableDefaultJoinMessage)
                         .add()
                         .append(new KeyedCodec<String>("MessageReloaded", Codec.STRING),
                                         (config, value, info) -> config.messageReloaded = value,
@@ -37,23 +41,32 @@ public class WelcomeTaleConfig {
                         .add()
                         .build();
 
-        private String message = "&7Welcome &a{player} &7to the server!";
-        private boolean disableJoinMessage = true;
+        private String joinMessage = "&3&l > &3{player} &b joined";
+        private String welcomePlayerMessage = "&7Welcome &a{player} &7to the server!";
+        private boolean disableDefaultJoinMessage = true;
         private String messageReloaded = "&aConfiguration reloaded successfully!";
         private String noPermission = "&cYou don't have permission to use this command!";
 
         /**
-         * @return Welcome message with {player} placeholder support
+         * @return Join broadcast message with {player} placeholder support
          */
-        public String getMessage() {
-                return message;
+        public String getJoinMessage() {
+                return joinMessage;
+        }
+
+        /**
+         * @return Welcome private message sent to player with {player} placeholder
+         *         support
+         */
+        public String getWelcomePlayerMessage() {
+                return welcomePlayerMessage;
         }
 
         /**
          * @return true if default join messages should be disabled
          */
-        public boolean isDisableJoinMessage() {
-                return disableJoinMessage;
+        public boolean isDisableDefaultJoinMessage() {
+                return disableDefaultJoinMessage;
         }
 
         /**

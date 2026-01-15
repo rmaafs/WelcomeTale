@@ -1,17 +1,22 @@
 {
-  "Message": [
+  "JoinMessage": ["", "&3&l > &3{player} &b joined", ""],
+  "WelcomePlayerMessage": [
     "",
-    "&3&l > &3{player} &b joined",
+    "&6&l=====================================",
+    "&e&lWelcome to Our Server!",
+    "&6&l=====================================",
     "",
-    "&e&l--- Other examples ---",
-    "&7This is a test message with &amultiple &bcolors &cand &dformats&7!",
-    "&l&9Bold blue text &r&o&5italic magenta text",
+    "&7We're &ethrilled &7to have you here, &b{player}&7!",
+    "&7Get ready for an &e&lamazing adventure &r&7ahead.",
     "",
-    "&e&l--- Link Section ---",
-    "&7Visit our website: &bhttps://rmaafs.com",
-    "&7GitHub repo: https://github.com/rmaafs/WelcomeTale"
+    "&6&l> &6Join our community:",
+    "&7  - Website: &ehttps://rmaafs.com",
+    "&7  - GitHub: &ehttps://github.com/rmaafs/WelcomeTale",
+    "",
+    "&6Enjoy your stay and have fun! :)",
+    ""
   ],
-  "DisableJoinMessage": true,
+  "DisableDefaultJoinMessage": true,
   "MessageReloaded": "&aConfiguration reloaded successfully!",
   "NoPermission": "&cYou don't have permission to use this command!"
 }
