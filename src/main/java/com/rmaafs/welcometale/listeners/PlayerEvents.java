@@ -4,6 +4,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import com.hypixel.hytale.server.core.universe.world.PlayerUtil;
 import com.rmaafs.welcometale.utils.MessageFormatter;
 import com.rmaafs.welcometale.utils.FileConfiguration;
 
@@ -28,14 +29,25 @@ public class PlayerEvents {
      */
     private void onPlayerReady(PlayerReadyEvent event) {
         Player player = event.getPlayer();
-        String message = FileConfiguration.getConfig().getMessage().replace("{player}", player.getDisplayName());
-        player.sendMessage(MessageFormatter.format(message));
+        String playerName = player.getDisplayName();
+
+        String joinMessage = FileConfiguration.getConfig().getJoinMessage().replace("{player}", playerName);
+        String welcomeMessage = FileConfiguration.getConfig().getWelcomePlayerMessage().replace("{player}", playerName);
+
+        if (!joinMessage.trim().isEmpty()) {
+            PlayerUtil.broadcastMessageToPlayers(null, MessageFormatter.format(joinMessage),
+                    player.getWorld().getEntityStore().getStore());
+        }
+
+        if (!welcomeMessage.trim().isEmpty()) {
+            player.sendMessage(MessageFormatter.format(welcomeMessage));
+        }
     }
 
     /**
      * Controls visibility of join messages based on configuration.
      */
     private void onPlayerJoinWorld(AddPlayerToWorldEvent event) {
-        event.setBroadcastJoinMessage(!FileConfiguration.getConfig().isDisableJoinMessage());
+        event.setBroadcastJoinMessage(!FileConfiguration.getConfig().isDisableDefaultJoinMessage());
     }
 }

@@ -2,12 +2,20 @@
 
 A Hytale server plugin that disables the default join message broadcast and displays custom welcome messages when players join your server.
 
-![alt text](docs/images/image.png)
-![alt text](docs/images/image2.png)
+## ![alt text](docs/images/image.png)
+
+## ![alt text](docs/images/image2.png)
+
+## ![alt text](docs/images/image3.png)
 
 ## Description
 
-WelcomeTale is a plugin for Hytale that enhances the player experience by sending customizable welcome messages to players when someone joins the server. You can personalize the message format with colors and multiple lines, and control whether default join messages are displayed.
+WelcomeTale is a plugin for Hytale that enhances the player experience with a dual message system:
+
+- **Server-wide announcements** when someone joins (customizable join message broadcasted to all players)
+- **Private welcome messages** sent directly to the joining player
+
+You can personalize both message formats with colors, multiple lines, and control whether default join messages are displayed.
 
 [GitHub Repository](https://github.com/rmaafs/WelcomeTale)
 
@@ -24,7 +32,9 @@ You can download WelcomeTale from multiple platforms:
 
 ## Features
 
-- 💬 **Customizable join messages** - Replace default server join messages with your own personalized welcome text
+- 💬 **Dual message system** - Send two types of messages when a player joins:
+  - **Server broadcast** (`JoinMessage`) - Announce to all players that someone joined
+  - **Private welcome** (`WelcomePlayerMessage`) - Personal welcome message sent only to the joining player
 - 🎨 **Color & formatting support** - Use Minecraft color codes (`&`) for colorful, styled messages
   - 16 color options (black, blue, green, aqua, red, purple, gold, gray, etc.)
   - Text formatting: bold (`&l`), italic (`&o`), reset (`&r`)
@@ -57,25 +67,32 @@ When you first run the plugin, it will generate a `config.example.json` file in 
 
 **Important:** You must rename `config.example.json` to `config.json` to use your own configuration.
 
+> **⚠️ Upgrading from an older version?** Check the `config.example.json` file inside your server's `mods/com.rmaafs_WelcomeTale` folder to use the new configuration format.
+
 #### Configuration Options
 
 The `config.json` file contains the following options:
 
 ```json
 {
-  "Message": [
+  "JoinMessage": ["", "&3&l > &3{player} &b joined", ""],
+  "WelcomePlayerMessage": [
     "",
-    "&3&l > &3{player} &b joined",
+    "&6&l=====================================",
+    "&e&lWelcome to Our Server!",
+    "&6&l=====================================",
     "",
-    "&e&l--- Other examples ---",
-    "&7This is a test message with &amultiple &bcolors &cand &dformats&7!",
-    "&l&9Bold blue text &r&o&5italic magenta text",
+    "&7We're &ethrilled &7to have you here, &b{player}&7!",
+    "&7Get ready for an &e&lamazing adventure &r&7ahead.",
     "",
-    "&e&l--- Link Section ---",
-    "&7Visit our website: &bhttps://rmaafs.com",
-    "&7GitHub repo: https://github.com/rmaafs/WelcomeTale"
+    "&6&l> &6Join our community:",
+    "&7  - Website: &ehttps://rmaafs.com",
+    "&7  - GitHub: &ehttps://github.com/rmaafs/WelcomeTale",
+    "",
+    "&6Enjoy your stay and have fun! :)",
+    ""
   ],
-  "DisableJoinMessage": true,
+  "DisableDefaultJoinMessage": true,
   "MessageReloaded": "&aConfiguration reloaded successfully!",
   "NoPermission": "&cYou don't have permission to use this command!"
 }
@@ -83,11 +100,17 @@ The `config.json` file contains the following options:
 
 **Configuration Fields:**
 
-- `Message`: The welcome message sent to players. Can be a single line (string) or multiple lines (array of strings)
+- `JoinMessage`: **Server-wide broadcast message** sent to all players when someone joins
   - Use `{player}` as a placeholder for the joining player's name
   - Supports color codes with `&` (see Color Codes section below)
-  - Example: `"&7Welcome &a{player} &7to the server!"`
-- `DisableJoinMessage`: Set to `true` to **disable the default Hytale join message**. This gives you full control over join notifications
+  - Set to empty array `[]` to disable server broadcasts
+  - Example: `["&3&l > &3{player} &b joined"]`
+- `WelcomePlayerMessage`: **Private welcome message** sent only to the joining player
+  - Use `{player}` as a placeholder for the joining player's name
+  - Perfect for server rules, links, or personalized greetings
+  - Set to empty array `[]` to disable private welcome messages
+  - Example: `["&7Welcome &a{player} &7to the server!"]`
+- `DisableDefaultJoinMessage`: Set to `true` to **disable the default Hytale join message**. This gives you full control over join notifications
 - `MessageReloaded`: Message displayed when configuration is successfully reloaded
 - `NoPermission`: Message displayed when a player lacks permission to execute the command
 
@@ -123,17 +146,17 @@ You can customize your messages with colors using the `&` symbol followed by a c
 **Example:**
 
 ```json
-"Message": "&7Welcome &a&l{player}&r &7to our &b&oawesome&r &7server!"
+"WelcomePlayerMessage": ["&7Welcome &a&l{player}&r &7to our &b&oawesome&r &7server!"]
 ```
 
 This will display: "Welcome **{player}** to our _awesome_ server!" with appropriate colors.
 
 #### Multi-Line Messages
 
-You can create multi-line welcome messages by using an array format:
+You can create multi-line messages by using an array format for both `JoinMessage` and `WelcomePlayerMessage`:
 
 ```json
-"Message": [
+"WelcomePlayerMessage": [
   "&7============================",
   "&a&lWelcome {player}!",
   "&7Thank you for joining",
@@ -142,7 +165,15 @@ You can create multi-line welcome messages by using an array format:
 ]
 ```
 
-Each line will be displayed separately, creating a beautiful welcome banner.
+Each line will be displayed separately, creating a beautiful message banner.
+
+#### Message Behavior
+
+When a player joins the server:
+
+1. **`JoinMessage`** is broadcasted to all players on the server (if not empty)
+2. **`WelcomePlayerMessage`** is sent privately to the joining player (if not empty)
+3. If either field is an empty array `[]` or contains only whitespace, that message will not be sent
 
 #### Reloading Configuration
 
