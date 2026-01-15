@@ -42,9 +42,6 @@ public class WelcomeTaleConfig {
         private String messageReloaded = "&aConfiguration reloaded successfully!";
         private String noPermission = "&cYou don't have permission to use this command!";
 
-        public WelcomeTaleConfig() {
-        }
-
         /**
          * @return Welcome message with {player} placeholder support
          */

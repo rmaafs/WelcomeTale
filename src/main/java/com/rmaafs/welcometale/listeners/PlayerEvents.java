@@ -4,7 +4,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
-import com.rmaafs.welcometale.utils.CustomColors;
+import com.rmaafs.welcometale.utils.MessageFormatter;
 import com.rmaafs.welcometale.utils.FileConfiguration;
 
 /**
@@ -29,7 +29,7 @@ public class PlayerEvents {
     private void onPlayerReady(PlayerReadyEvent event) {
         Player player = event.getPlayer();
         String message = FileConfiguration.getConfig().getMessage().replace("{player}", player.getDisplayName());
-        player.sendMessage(CustomColors.formatColorCodes(message));
+        player.sendMessage(MessageFormatter.format(message));
     }
 
     /**

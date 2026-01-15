@@ -38,7 +38,7 @@ public class FileConfiguration {
         copyConfigToModsFolder(pluginInstance);
         config.load();
 
-        pluginInstance.getLogger().atInfo().log(CustomColors.stripColorCodes(config.get().getMessageReloaded()));
+        pluginInstance.getLogger().atInfo().log(MessageFormatter.stripColorCodes(config.get().getMessageReloaded()));
     }
 
     /**

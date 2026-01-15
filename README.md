@@ -2,7 +2,8 @@
 
 A Hytale server plugin that disables the default join message broadcast and displays custom welcome messages when players join your server.
 
-![alt text](docs/image.png)
+![alt text](docs/images/image.png)
+![alt text](docs/images/image2.png)
 
 ## Description
 
@@ -23,13 +24,19 @@ You can download WelcomeTale from multiple platforms:
 
 ## Features
 
-- Custom welcome messages when players join the server
-- Fully configurable message format with player name placeholder
-- **Color support using Minecraft color codes with `&` symbol**
-- **Multi-line message support**
-- **⚠️ Important: Optional disable vanilla join messages** - Take full control of server messages by hiding Hytale's default join notifications
-- Hot-reload configuration without restarting the server
-- Easy JSON configuration
+- 💬 **Customizable join messages** - Replace default server join messages with your own personalized welcome text
+- 🎨 **Color & formatting support** - Use Minecraft color codes (`&`) for colorful, styled messages
+  - 16 color options (black, blue, green, aqua, red, purple, gold, gray, etc.)
+  - Text formatting: bold (`&l`), italic (`&o`), reset (`&r`)
+- 🔗 **Clickable links** - Automatically detects and converts HTTP/HTTPS URLs into clickable links
+  - Links are displayed in cyan color and open in browser when clicked
+  - Supports complex URLs with paths, queries, and parameters
+- 📝 **Multi-line message support** - Create beautiful message banners with multiple lines
+- 👤 **Player name placeholder** - Use `{player}` to dynamically insert the joining player's name
+- 🔕 **Optional join message control** - Disable Hytale's default join messages for full control
+- 🔄 **Hot-reload configuration** - Update settings without restarting the server using `/welcometale`
+- ⚙️ **Easy JSON configuration** - Simple, human-readable configuration file
+- 🛡️ **Permission system** - Control who can reload the configuration
 
 ---
 
@@ -56,7 +63,18 @@ The `config.json` file contains the following options:
 
 ```json
 {
-  "Message": ["&7Welcome &a{player} &7to the server!", "&eEnjoy your stay!"],
+  "Message": [
+    "",
+    "&3&l > &3{player} &b joined",
+    "",
+    "&e&l--- Other examples ---",
+    "&7This is a test message with &amultiple &bcolors &cand &dformats&7!",
+    "&l&9Bold blue text &r&o&5italic magenta text",
+    "",
+    "&e&l--- Link Section ---",
+    "&7Visit our website: &bhttps://rmaafs.com",
+    "&7GitHub repo: https://github.com/rmaafs/WelcomeTale"
+  ],
   "DisableJoinMessage": true,
   "MessageReloaded": "&aConfiguration reloaded successfully!",
   "NoPermission": "&cYou don't have permission to use this command!"
@@ -194,7 +212,7 @@ WelcomeTale/
 │   ├── listeners/
 │   │   └── PlayerEvents.java        # Event listeners
 │   └── utils/
-│       ├── CustomColors.java        # Color formatting utility
+│       ├── MessageFormatter.java    # Message formatting utility
 │       └── FileConfiguration.java   # Config file manager
 └── src/main/resources/
     ├── config.example.json          # Example configuration

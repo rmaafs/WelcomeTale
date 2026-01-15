@@ -1,8 +1,15 @@
 {
   "Message": [
-    "&8&l--------------------------------------",
-    "&r&7Welcome &e{player} &7to the server!",
-    "&r&8&l--------------------------------------"
+    "",
+    "&3&l > &3{player} &b joined",
+    "",
+    "&e&l--- Other examples ---",
+    "&7This is a test message with &amultiple &bcolors &cand &dformats&7!",
+    "&l&9Bold blue text &r&o&5italic magenta text",
+    "",
+    "&e&l--- Link Section ---",
+    "&7Visit our website: &bhttps://rmaafs.com",
+    "&7GitHub repo: https://github.com/rmaafs/WelcomeTale"
   ],
   "DisableJoinMessage": true,
   "MessageReloaded": "&aConfiguration reloaded successfully!",
