@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
-import com.rmaafs.welcometale.utils.CustomColors;
+import com.rmaafs.welcometale.utils.MessageFormatter;
 import com.rmaafs.welcometale.utils.FileConfiguration;
 
 /**
@@ -27,12 +27,12 @@ public class WelcomeTaleCommand extends CommandBase {
     protected void executeSync(@Nonnull CommandContext commandContext) {
         if (!commandContext.sender().hasPermission(PERMISSION)) {
             commandContext.sender()
-                    .sendMessage(CustomColors.formatColorCodes(FileConfiguration.getConfig().getNoPermission()));
+                    .sendMessage(MessageFormatter.format(FileConfiguration.getConfig().getNoPermission()));
             return;
         }
 
         FileConfiguration.reloadConfig();
         commandContext.sender()
-                .sendMessage(CustomColors.formatColorCodes(FileConfiguration.getConfig().getMessageReloaded()));
+                .sendMessage(MessageFormatter.format(FileConfiguration.getConfig().getMessageReloaded()));
     }
 }
