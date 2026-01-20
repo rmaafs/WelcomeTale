@@ -30,6 +30,12 @@
             <systemPath>${hytale.server.jar}</systemPath>
         </dependency>
         
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.7</version>
+        </dependency>
+        
     </dependencies>
 
     <build>
@@ -43,19 +49,118 @@
                     <target>25</target>
                 </configuration>
             </plugin>
+            
+            <!-- Step 1: Unpack ASM dependency -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>unpack-asm</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.ow2.asm</groupId>
+                                    <artifactId>asm</artifactId>
+                                    <version>9.7</version>
+                                    <outputDirectory>${project.build.directory}/transformer-temp</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Step 2: Create transformer JAR with ASM classes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.4.1</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.example.HelloWorld</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
+                <executions>
+                    <!-- Create transformer JAR -->
+                    <execution>
+                        <id>transformer-jar</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>transformer</classifier>
+                            <classesDirectory>${project.build.directory}/transformer-temp</classesDirectory>
+                            <includes>
+                                <include>org/objectweb/asm/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <!-- Main JAR excluding transformer classes -->
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/transformers/**</exclude>
+                                <exclude>META-INF/services/com.hypixel.hytale.plugin.early.ClassTransformer</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+            
+            <!-- Step 3: Use antrun to build the complete transformer JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>create-transformer-jar</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/earlyplugins"/>
+                                <!-- Create the transformer JAR with both ASM and transformer classes -->
+                                <jar destfile="${project.build.directory}/earlyplugins/LeaveMessageTransformer.jar">
+                                    <!-- Include unpacked ASM classes -->
+                                    <fileset dir="${project.build.directory}/transformer-temp" includes="org/objectweb/asm/**"/>
+                                    <!-- Include transformer classes from compiled classes -->
+                                    <fileset dir="${project.build.outputDirectory}" includes="com/rmaafs/welcometale/transformers/**"/>
+                                    <fileset dir="${project.build.outputDirectory}" includes="META-INF/services/com.hypixel.hytale.plugin.early.ClassTransformer"/>
+                                </jar>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <!-- Embed transformer JAR in main JAR -->
+                    <execution>
+                        <id>repackage-with-transformer</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- Add the transformer JAR to the main JAR -->
+                                <jar destfile="${project.build.directory}/${project.build.finalName}.jar" 
+                                     update="true">
+                                    <fileset dir="${project.build.directory}" includes="earlyplugins/**"/>
+                                </jar>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Copy final JAR to mods directory -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>

@@ -2,6 +2,7 @@ package com.rmaafs.welcometale;
 
 import javax.annotation.Nonnull;
 
+import com.rmaafs.welcometale.commands.PatchCommand;
 import com.rmaafs.welcometale.commands.WelcomeTaleCommand;
 import com.rmaafs.welcometale.listeners.PlayerEvents;
 import com.rmaafs.welcometale.utils.FileConfiguration;
@@ -54,6 +55,7 @@ public class Main extends JavaPlugin {
 
     private void registerCommands() {
         this.getCommandRegistry().registerCommand(new WelcomeTaleCommand());
+        this.getCommandRegistry().registerCommand(new PatchCommand());
     }
 
     private void registerEvents() {
