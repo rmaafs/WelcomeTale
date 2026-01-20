@@ -5,9 +5,8 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
-import com.hypixel.hytale.server.core.universe.world.PlayerUtil;
 import com.rmaafs.welcometale.utils.MessageFormatter;
+import com.rmaafs.welcometale.utils.ServerUtils;
 import com.rmaafs.welcometale.utils.FileConfiguration;
 
 /**
@@ -49,8 +48,7 @@ public class PlayerEvents {
         String welcomeMessage = FileConfiguration.getConfig().getWelcomePlayerMessage().replace("{player}", playerName);
 
         if (!joinMessage.trim().isEmpty()) {
-            PlayerUtil.broadcastMessageToPlayers(null, MessageFormatter.format(joinMessage),
-                    event.getWorld().getEntityStore().getStore());
+            ServerUtils.broadcast(MessageFormatter.format(joinMessage));
         }
 
         if (!welcomeMessage.trim().isEmpty()) {
@@ -72,8 +70,7 @@ public class PlayerEvents {
         String leaveMessage = FileConfiguration.getConfig().getLeaveMessage().replace("{player}", playerName);
 
         if (!leaveMessage.trim().isEmpty()) {
-            PlayerUtil.broadcastMessageToPlayers(null, MessageFormatter.format(leaveMessage),
-                    Universe.get().getWorld(player.getWorldUuid()).getEntityStore().getStore());
+            ServerUtils.broadcast(MessageFormatter.format(leaveMessage));
         }
     }
 }
