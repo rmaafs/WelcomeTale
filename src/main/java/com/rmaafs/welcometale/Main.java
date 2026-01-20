@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import com.rmaafs.welcometale.commands.WelcomeTaleCommand;
 import com.rmaafs.welcometale.listeners.PlayerEvents;
 import com.rmaafs.welcometale.utils.FileConfiguration;
+import com.rmaafs.welcometale.utils.UpdateChecker;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 
@@ -16,6 +17,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 public class Main extends JavaPlugin {
 
     public static Main MAIN_INSTANCE = null;
+    public static UpdateChecker updateChecker = null;
 
     public Main(@Nonnull JavaPluginInit init) {
         super(init);
@@ -36,6 +38,18 @@ public class Main extends JavaPlugin {
     protected void setup() {
         this.registerCommands();
         this.registerEvents();
+
+        if (FileConfiguration.getConfig().isCheckForUpdates()) {
+            updateChecker = new UpdateChecker(this.getManifest().getVersion().toString());
+            if (!updateChecker.isUsingLatest()) {
+                getLogger().atWarning().log("════════════════════ WelcomeTale ═════════════════════");
+                getLogger().atWarning()
+                        .log("New version available! (v" + updateChecker.getLatestVersion() + ") - Current: (v"
+                                + updateChecker.getCurrentVersion() + ")");
+                getLogger().atWarning().log("Download it at " + updateChecker.REPO_URL + "/releases");
+                getLogger().atWarning().log("════════════════════ WelcomeTale ═════════════════════");
+            }
+        }
     }
 
     private void registerCommands() {

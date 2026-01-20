@@ -97,7 +97,8 @@ The `config.json` file contains the following options:
     ""
   ],
   "MessageReloaded": "&aConfiguration reloaded successfully!",
-  "NoPermission": "&cYou don't have permission to use this command!"
+  "NoPermission": "&cYou don't have permission to use this command!",
+  "CheckForUpdates": true
 }
 ```
 
@@ -123,6 +124,11 @@ The `config.json` file contains the following options:
 - `DisableDefaultJoinMessage`: Set to `true` to **disable the default Hytale join message**. This gives you full control over join notifications
 - `MessageReloaded`: Message displayed when configuration is successfully reloaded
 - `NoPermission`: Message displayed when a player lacks permission to execute the command
+- `CheckForUpdates`: Set to `true` to **enable automatic update checking**. When enabled:
+  - The plugin checks for new versions on GitHub when the server starts
+  - Users with the `welcometale.reload` permission receive an in-game notification when joining if a new version is available
+  - Set to `false` to disable all update checks and notifications
+  - Default: `true`
 
 #### Color Codes
 
@@ -207,6 +213,8 @@ This will reload all configuration changes immediately.
 | `/welcometale` | Reloads the plugin configuration | `welcometale.reload` |
 
 **Note:** Only users with the `welcometale.reload` permission can execute this command. By default, server operators have this permission.
+
+**Update Notifications:** Users with the `welcometale.reload` permission will receive an in-game notification when they join the server if a new version of the plugin is available. To disable these notifications, set `CheckForUpdates` to `false` in the `config.json` file.
 
 ---
 

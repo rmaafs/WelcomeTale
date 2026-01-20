@@ -43,6 +43,10 @@ public class WelcomeTaleConfig {
                                         (config, value, info) -> config.noPermission = value,
                                         (config, info) -> config.noPermission)
                         .add()
+                        .append(new KeyedCodec<Boolean>("CheckForUpdates", Codec.BOOLEAN),
+                                        (config, value, info) -> config.checkForUpdates = value,
+                                        (config, info) -> config.checkForUpdates)
+                        .add()
                         .build();
 
         private String joinMessage = "&3&l > &3{player} &bjoined";
@@ -51,6 +55,7 @@ public class WelcomeTaleConfig {
         private boolean disableDefaultJoinMessage = true;
         private String messageReloaded = "&aConfiguration reloaded successfully!";
         private String noPermission = "&cYou don't have permission to use this command!";
+        private boolean checkForUpdates = true;
 
         /**
          * @return Join broadcast message with {player} placeholder support
@@ -93,5 +98,12 @@ public class WelcomeTaleConfig {
          */
         public String getNoPermission() {
                 return noPermission;
+        }
+
+        /**
+         * @return true if update checking is enabled
+         */
+        public boolean isCheckForUpdates() {
+                return checkForUpdates;
         }
 }

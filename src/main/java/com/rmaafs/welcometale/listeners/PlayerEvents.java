@@ -7,7 +7,10 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.rmaafs.welcometale.utils.MessageFormatter;
 import com.rmaafs.welcometale.utils.ServerUtils;
+import com.rmaafs.welcometale.utils.UpdateChecker;
+import com.rmaafs.welcometale.commands.WelcomeTaleCommand;
 import com.rmaafs.welcometale.utils.FileConfiguration;
+import com.rmaafs.welcometale.Main;
 
 /**
  * Handles player-related events for the WelcomeTale plugin.
@@ -53,6 +56,18 @@ public class PlayerEvents {
 
         if (!welcomeMessage.trim().isEmpty()) {
             player.sendMessage(MessageFormatter.format(welcomeMessage));
+        }
+
+        if (FileConfiguration.getConfig().isCheckForUpdates()
+                && ServerUtils.hasPermission(player, WelcomeTaleCommand.PERMISSION)) {
+            UpdateChecker updater = Main.updateChecker;
+
+            if (updater != null && !updater.isUsingLatest()) {
+                player.sendMessage(MessageFormatter.format("&6&lWelcomeTale > &eNew version available &av"
+                        + updater.getLatestVersion() + " &7&o(current: v"
+                        + updater.getCurrentVersion()
+                        + "&e)\nDownload at &7" + updater.REPO_URL + "/releases"));
+            }
         }
     }
 
