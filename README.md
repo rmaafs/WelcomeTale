@@ -92,6 +92,7 @@ The `config.json` file contains the following options:
     "&6Enjoy your stay and have fun! :)",
     ""
   ],
+  "LeaveMessage": ["", "&3&l < &3{player} &c left", ""],
   "DisableDefaultJoinMessage": true,
   "MessageReloaded": "&aConfiguration reloaded successfully!",
   "NoPermission": "&cYou don't have permission to use this command!"
@@ -110,6 +111,11 @@ The `config.json` file contains the following options:
   - Perfect for server rules, links, or personalized greetings
   - Set to empty array `[]` to disable private welcome messages
   - Example: `["&7Welcome &a{player} &7to the server!"]`
+- `LeaveMessage`: **Server-wide broadcast message** sent to all players when someone leaves
+  - Use `{player}` as a placeholder for the leaving player's name
+  - Supports color codes with `&` (see Color Codes section below)
+  - Set to empty array `[]` to disable leave broadcasts
+  - Example: `["&3&l < &3{player} &c left"]`
 - `DisableDefaultJoinMessage`: Set to `true` to **disable the default Hytale join message**. This gives you full control over join notifications
 - `MessageReloaded`: Message displayed when configuration is successfully reloaded
 - `NoPermission`: Message displayed when a player lacks permission to execute the command

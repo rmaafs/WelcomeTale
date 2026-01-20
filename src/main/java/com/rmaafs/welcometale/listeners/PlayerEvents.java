@@ -2,8 +2,10 @@ package com.rmaafs.welcometale.listeners;
 
 import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.PlayerUtil;
 import com.rmaafs.welcometale.utils.MessageFormatter;
 import com.rmaafs.welcometale.utils.FileConfiguration;
@@ -21,6 +23,7 @@ public class PlayerEvents {
     private void registerEvents(JavaPlugin plugin) {
         plugin.getEventRegistry().registerGlobal(AddPlayerToWorldEvent.class, this::onPlayerJoinWorld);
         plugin.getEventRegistry().registerGlobal(PlayerConnectEvent.class, this::onPlayerConnect);
+        plugin.getEventRegistry().registerGlobal(PlayerDisconnectEvent.class, this::onPlayerDisconnect);
     }
 
     /**
@@ -52,6 +55,25 @@ public class PlayerEvents {
 
         if (!welcomeMessage.trim().isEmpty()) {
             player.sendMessage(MessageFormatter.format(welcomeMessage));
+        }
+    }
+
+    /**
+     * Handles player disconnection events by broadcasting a custom leave message.
+     * The message is formatted with the player's username replacing the {player}
+     * placeholder.
+     *
+     * @param event the player disconnect event containing player information
+     */
+    private void onPlayerDisconnect(PlayerDisconnectEvent event) {
+        PlayerRef player = event.getPlayerRef();
+        String playerName = player.getUsername();
+
+        String leaveMessage = FileConfiguration.getConfig().getLeaveMessage().replace("{player}", playerName);
+
+        if (!leaveMessage.trim().isEmpty()) {
+            PlayerUtil.broadcastMessageToPlayers(null, MessageFormatter.format(leaveMessage),
+                    Universe.get().getWorld(player.getWorldUuid()).getEntityStore().getStore());
         }
     }
 }

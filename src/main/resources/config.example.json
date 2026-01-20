@@ -1,5 +1,7 @@
 {
+  "DisableDefaultJoinMessage": true,
   "JoinMessage": ["", "&3&l > &3{player} &b joined", ""],
+  "LeaveMessage": ["", "&4&l > &4{player} &cleft", ""],
   "WelcomePlayerMessage": [
     "",
     "&6&l=====================================",
@@ -16,7 +18,6 @@
     "&6Enjoy your stay and have fun! :)",
     ""
   ],
-  "DisableDefaultJoinMessage": true,
   "MessageReloaded": "&aConfiguration reloaded successfully!",
   "NoPermission": "&cYou don't have permission to use this command!"
 }
