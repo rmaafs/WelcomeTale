@@ -6,7 +6,7 @@ A Hytale server plugin that disables the default join message broadcast and disp
 
 ## ![alt text](docs/images/image2.png)
 
-## ![alt text](docs/images/image3.png)
+## ![alt text](docs/images/image4.png)
 
 ## Description
 
