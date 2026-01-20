@@ -71,6 +71,15 @@ public class FileConfiguration {
             var resource = plugin.getClass().getResourceAsStream("/" + configFileName);
             if (resource != null) {
                 Files.copy(resource, targetConfig);
+
+                // Create config.json if it doesn't exist
+                Path actualConfig = modsPluginDir.resolve("config.json");
+                if (!Files.exists(actualConfig)) {
+                    var configResource = plugin.getClass().getResourceAsStream("/" + configFileName);
+                    if (configResource != null) {
+                        Files.copy(configResource, actualConfig);
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
