@@ -27,6 +27,10 @@ public class WelcomeTaleConfig {
                                         (config, value, info) -> config.welcomePlayerMessage = value,
                                         (config, info) -> config.welcomePlayerMessage)
                         .add()
+                        .append(new KeyedCodec<String>("LeaveMessage", MESSAGE_CODEC),
+                                        (config, value, info) -> config.leaveMessage = value,
+                                        (config, info) -> config.leaveMessage)
+                        .add()
                         .append(new KeyedCodec<Boolean>("DisableDefaultJoinMessage", Codec.BOOLEAN),
                                         (config, value, info) -> config.disableDefaultJoinMessage = value,
                                         (config, info) -> config.disableDefaultJoinMessage)
