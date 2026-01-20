@@ -41,8 +41,9 @@ public class WelcomeTaleConfig {
                         .add()
                         .build();
 
-        private String joinMessage = "&3&l > &3{player} &b joined";
+        private String joinMessage = "&3&l > &3{player} &bjoined";
         private String welcomePlayerMessage = "&7Welcome &a{player} &7to the server!";
+        private String leaveMessage = "&4&l > &4{player} &cleft";
         private boolean disableDefaultJoinMessage = true;
         private String messageReloaded = "&aConfiguration reloaded successfully!";
         private String noPermission = "&cYou don't have permission to use this command!";
@@ -60,6 +61,13 @@ public class WelcomeTaleConfig {
          */
         public String getWelcomePlayerMessage() {
                 return welcomePlayerMessage;
+        }
+
+        /**
+         * @return Leave broadcast message with {player} placeholder support
+         */
+        public String getLeaveMessage() {
+                return leaveMessage;
         }
 
         /**

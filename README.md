@@ -10,12 +10,13 @@ A Hytale server plugin that disables the default join message broadcast and disp
 
 ## Description
 
-WelcomeTale is a plugin for Hytale that enhances the player experience with a dual message system:
+WelcomeTale is a plugin for Hytale that enhances the player experience with a comprehensive message system:
 
-- **Server-wide announcements** when someone joins (customizable join message broadcasted to all players)
+- **Server-wide join announcements** when someone joins (customizable join message broadcasted to all players)
 - **Private welcome messages** sent directly to the joining player
+- **Server-wide leave announcements** when someone leaves (customizable leave message broadcasted to all players)
 
-You can personalize both message formats with colors, multiple lines, and control whether default join messages are displayed.
+You can personalize all message formats with colors, multiple lines, and control whether default join messages are displayed.
 
 [GitHub Repository](https://github.com/rmaafs/WelcomeTale)
 
@@ -32,9 +33,10 @@ You can download WelcomeTale from multiple platforms:
 
 ## Features
 
-- 💬 **Dual message system** - Send two types of messages when a player joins:
-  - **Server broadcast** (`JoinMessage`) - Announce to all players that someone joined
+- 💬 **Triple message system** - Complete control over player connection messages:
+  - **Join broadcast** (`JoinMessage`) - Announce to all players when someone joins
   - **Private welcome** (`WelcomePlayerMessage`) - Personal welcome message sent only to the joining player
+  - **Leave broadcast** (`LeaveMessage`) - Announce to all players when someone leaves
 - 🎨 **Color & formatting support** - Use Minecraft color codes (`&`) for colorful, styled messages
   - 16 color options (black, blue, green, aqua, red, purple, gold, gray, etc.)
   - Text formatting: bold (`&l`), italic (`&o`), reset (`&r`)
@@ -75,7 +77,9 @@ The `config.json` file contains the following options:
 
 ```json
 {
+  "DisableDefaultJoinMessage": true,
   "JoinMessage": ["", "&3&l > &3{player} &b joined", ""],
+  "LeaveMessage": ["", "&4&l > &4{player} &cleft", ""],
   "WelcomePlayerMessage": [
     "",
     "&6&l=====================================",
@@ -92,7 +96,6 @@ The `config.json` file contains the following options:
     "&6Enjoy your stay and have fun! :)",
     ""
   ],
-  "DisableDefaultJoinMessage": true,
   "MessageReloaded": "&aConfiguration reloaded successfully!",
   "NoPermission": "&cYou don't have permission to use this command!"
 }
@@ -105,11 +108,18 @@ The `config.json` file contains the following options:
   - Supports color codes with `&` (see Color Codes section below)
   - Set to empty array `[]` to disable server broadcasts
   - Example: `["&3&l > &3{player} &b joined"]`
+- `LeaveMessage`: **Server-wide broadcast message** sent to all players when someone leaves
+  - Use `{player}` as a placeholder for the leaving player's name
+  - Supports color codes with `&` (see Color Codes section below)
+  - Set to empty array `[]` to disable leave broadcasts
+  - Example: `["&3&l < &3{player} &c left"]`
 - `WelcomePlayerMessage`: **Private welcome message** sent only to the joining player
+
   - Use `{player}` as a placeholder for the joining player's name
   - Perfect for server rules, links, or personalized greetings
   - Set to empty array `[]` to disable private welcome messages
   - Example: `["&7Welcome &a{player} &7to the server!"]`
+
 - `DisableDefaultJoinMessage`: Set to `true` to **disable the default Hytale join message**. This gives you full control over join notifications
 - `MessageReloaded`: Message displayed when configuration is successfully reloaded
 - `NoPermission`: Message displayed when a player lacks permission to execute the command
@@ -173,7 +183,12 @@ When a player joins the server:
 
 1. **`JoinMessage`** is broadcasted to all players on the server (if not empty)
 2. **`WelcomePlayerMessage`** is sent privately to the joining player (if not empty)
-3. If either field is an empty array `[]` or contains only whitespace, that message will not be sent
+
+When a player leaves the server:
+
+1. **`LeaveMessage`** is broadcasted to all players on the server (if not empty)
+
+If any message field is an empty array `[]` or contains only whitespace, that message will not be sent
 
 #### Reloading Configuration
 
@@ -235,19 +250,27 @@ This will reload all configuration changes immediately.
 
 ```
 WelcomeTale/
-├── src/main/java/com/rmaafs/welcometale/
-│   ├── Main.java                    # Plugin entry point
-│   ├── WelcomeTaleConfig.java       # Configuration class
-│   ├── commands/
-│   │   └── WelcomeTaleCommand.java  # Command handler
-│   ├── listeners/
-│   │   └── PlayerEvents.java        # Event listeners
-│   └── utils/
-│       ├── MessageFormatter.java    # Message formatting utility
-│       └── FileConfiguration.java   # Config file manager
-└── src/main/resources/
-    ├── config.example.json          # Example configuration
-    └── manifest.json                # Plugin manifest
+├── LICENSE                          # Project license
+├── pom.xml                          # Maven configuration
+├── README.md                        # Documentation
+├── docs/
+│   └── images/                      # Screenshots and images
+├── src/main/
+│   ├── java/com/rmaafs/welcometale/
+│   │   ├── Main.java                    # Plugin entry point
+│   │   ├── WelcomeTaleConfig.java       # Configuration class
+│   │   ├── commands/
+│   │   │   └── WelcomeTaleCommand.java  # Command handler
+│   │   ├── listeners/
+│   │   │   └── PlayerEvents.java        # Event listeners for join/leave
+│   │   └── utils/
+│   │       ├── MessageFormatter.java    # Message formatting utility
+│   │       └── FileConfiguration.java   # Config file manager
+│   └── resources/
+│       ├── config.example.json          # Example configuration
+│       ├── config.json                  # Active configuration
+│       └── manifest.json                # Plugin manifest
+└── target/                          # Compiled output (generated)
 ```
 
 ---
