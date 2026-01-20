@@ -1,3 +1,8 @@
+/**
+ * @author github.com/rmaafs
+ * @website https://rmaafs.com
+ */
+
 package com.rmaafs.welcometale.utils;
 
 import com.hypixel.hytale.server.core.Message;
