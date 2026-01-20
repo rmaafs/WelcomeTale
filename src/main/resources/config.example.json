@@ -19,5 +19,6 @@
     ""
   ],
   "MessageReloaded": "&aConfiguration reloaded successfully!",
-  "NoPermission": "&cYou don't have permission to use this command!"
+  "NoPermission": "&cYou don't have permission to use this command!",
+  "CheckForUpdates": true
 }

@@ -13,7 +13,7 @@ import com.rmaafs.welcometale.utils.FileConfiguration;
  */
 public class WelcomeTaleCommand extends CommandBase {
 
-    private final String PERMISSION = "welcometale.reload";
+    public static final String PERMISSION = "welcometale.reload";
 
     public WelcomeTaleCommand() {
         super("welcometale", "WelcomeTale command", false);
