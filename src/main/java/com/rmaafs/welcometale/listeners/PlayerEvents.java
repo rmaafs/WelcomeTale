@@ -1,9 +1,9 @@
 package com.rmaafs.welcometale.listeners;
 
-import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
-import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.PlayerUtil;
 import com.rmaafs.welcometale.utils.MessageFormatter;
 import com.rmaafs.welcometale.utils.FileConfiguration;
@@ -19,29 +19,8 @@ public class PlayerEvents {
     }
 
     private void registerEvents(JavaPlugin plugin) {
-        plugin.getEventRegistry().registerGlobal(PlayerReadyEvent.class, this::onPlayerReady);
         plugin.getEventRegistry().registerGlobal(AddPlayerToWorldEvent.class, this::onPlayerJoinWorld);
-    }
-
-    /**
-     * Sends welcome message to player when they're ready.
-     * Replaces {player} placeholder with player's display name.
-     */
-    private void onPlayerReady(PlayerReadyEvent event) {
-        Player player = event.getPlayer();
-        String playerName = player.getDisplayName();
-
-        String joinMessage = FileConfiguration.getConfig().getJoinMessage().replace("{player}", playerName);
-        String welcomeMessage = FileConfiguration.getConfig().getWelcomePlayerMessage().replace("{player}", playerName);
-
-        if (!joinMessage.trim().isEmpty()) {
-            PlayerUtil.broadcastMessageToPlayers(null, MessageFormatter.format(joinMessage),
-                    player.getWorld().getEntityStore().getStore());
-        }
-
-        if (!welcomeMessage.trim().isEmpty()) {
-            player.sendMessage(MessageFormatter.format(welcomeMessage));
-        }
+        plugin.getEventRegistry().registerGlobal(PlayerConnectEvent.class, this::onPlayerConnect);
     }
 
     /**
@@ -49,5 +28,30 @@ public class PlayerEvents {
      */
     private void onPlayerJoinWorld(AddPlayerToWorldEvent event) {
         event.setBroadcastJoinMessage(!FileConfiguration.getConfig().isDisableDefaultJoinMessage());
+    }
+
+    /**
+     * Handles player connection events by sending custom welcome and join messages.
+     * Broadcasts a join message to all players and sends a private welcome message
+     * to the connecting player. Messages are formatted with the player's username
+     * replacing the {player} placeholder.
+     *
+     * @param event the player connect event containing player and world information
+     */
+    private void onPlayerConnect(PlayerConnectEvent event) {
+        PlayerRef player = event.getPlayerRef();
+        String playerName = player.getUsername();
+
+        String joinMessage = FileConfiguration.getConfig().getJoinMessage().replace("{player}", playerName);
+        String welcomeMessage = FileConfiguration.getConfig().getWelcomePlayerMessage().replace("{player}", playerName);
+
+        if (!joinMessage.trim().isEmpty()) {
+            PlayerUtil.broadcastMessageToPlayers(null, MessageFormatter.format(joinMessage),
+                    event.getWorld().getEntityStore().getStore());
+        }
+
+        if (!welcomeMessage.trim().isEmpty()) {
+            player.sendMessage(MessageFormatter.format(welcomeMessage));
+        }
     }
 }
