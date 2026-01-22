@@ -3,6 +3,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Maven generated files
+dependency-reduced-pom.xml
+
 # Environment variables
 .env
 

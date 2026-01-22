@@ -46,9 +46,12 @@ You can download WelcomeTale from multiple platforms:
 - 📝 **Multi-line message support** - Create beautiful message banners with multiple lines
 - 👤 **Player name placeholder** - Use `{player}` to dynamically insert the joining player's name
 - 🔕 **Optional join message control** - Disable Hytale's default join messages for full control
+- 🚪 **Optional leave message patch** - Disable Hytale's default "player left world" messages using an early plugin transformer
 - 🔄 **Hot-reload configuration** - Update settings without restarting the server using `/welcometale`
 - ⚙️ **Easy JSON configuration** - Simple, human-readable configuration file
 - 🛡️ **Permission system** - Control who can reload the configuration
+
+> **⚠️ Note about default leave messages:** Unlike join messages, Hytale does not provide a native way to disable default "player left world" messages through the plugin API. To disable them, you can use the `/welcometalepatch` command to install the early plugin patch automatically, or read [leaveWorldMessagePatch.md](https://github.com/rmaafs/WelcomeTale/blob/main/leaveWorldMessagePatch.md) for detailed instructions, manual installation, and safety information.
 
 ---
 
@@ -208,9 +211,12 @@ This will reload all configuration changes immediately.
 
 ### Commands
 
-| Command        | Description                      | Permission           |
-| -------------- | -------------------------------- | -------------------- |
-| `/welcometale` | Reloads the plugin configuration | `welcometale.reload` |
+| Command             | Description                                        | Permission           |
+| ------------------- | -------------------------------------------------- | -------------------- |
+| `/welcometale`      | Reloads the plugin configuration                   | `welcometale.reload` |
+| `/welcometalepatch` | Installs the early plugin patch for leave messages | `welcometale.admin`  |
+
+> **⚠️ Important:** To disable the default "player left world" message from Hytale, run `/welcometalepatch` to install the early plugin that disables this message. A server restart will be required after installation.
 
 **Note:** Only users with the `welcometale.reload` permission can execute this command. By default, server operators have this permission.
 
