@@ -108,7 +108,7 @@ jobs:
       - name: Get JAR filename
         id: jar_file
         run: |
-          JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" | head -n 1)
+          JAR_FILE=$(find target -name "WelcomeTale-*.jar" -not -name "*-sources.jar" | head -n 1)
           JAR_NAME=$(basename "$JAR_FILE")
           echo "path=$JAR_FILE" >> $GITHUB_OUTPUT
           echo "name=$JAR_NAME" >> $GITHUB_OUTPUT
