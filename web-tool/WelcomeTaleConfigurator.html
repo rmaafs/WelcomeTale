@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WelcomeTale Configurator</title>
+    
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Load React & ReactDOM (Cloudflare CDN for reliability) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <!-- 3. Load Babel (for compiling JSX) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #1e293b;
+            border-top: 4px solid #10b981;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    
+    <!-- Mount Point with Loading State -->
+    <div id="root" class="min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="loader mb-4"></div>
+        <h2 class="text-xl font-bold text-slate-300">Loading Configurator...</h2>
+        <p class="text-slate-500 mt-2 text-center max-w-md">
+            If this stays visible for more than 5 seconds, check your internet connection.
+            <br>
+            <span class="text-xs text-slate-600">(This app requires internet to load React & Tailwind)</span>
+        </p>
+    </div>
+
+    <!-- Error Handler Script -->
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                if (!window.React || !window.ReactDOM) {
+                    alert("Error: React failed to load.\n\nPlease check your internet connection. This file needs to download React to run.");
+                }
+            }, 3000);
+        };
+    </script>
+
+    <!-- Main Application Script -->
+    <script type="text/babel">
+        const { useState, useRef, useEffect, useCallback } = React;
+
+        // --- ICONS (Inline SVGs) ---
+        const IconBase = ({ children, size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
+        );
+        const Bold = (props) => <IconBase {...props}><path d="M6 12h8a4 4 0 0 0 0-8H6v8Z"/><path d="M6 12h9a4 4 0 0 1 0 8H6v-8Z"/></IconBase>;
+        const Italic = (props) => <IconBase {...props}><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></IconBase>;
+        const Underline = (props) => <IconBase {...props}><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></IconBase>;
+        const Strikethrough = (props) => <IconBase {...props}><path d="M16 4h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M4 14h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Z"/><line x1="4" y1="12" x2="20" y2="12"/></IconBase>;
+        const Copy = (props) => <IconBase {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></IconBase>;
+        const Check = (props) => <IconBase {...props}><polyline points="20 6 9 17 4 12"/></IconBase>;
+        const Save = (props) => <IconBase {...props}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></IconBase>;
+        const Terminal = (props) => <IconBase {...props}><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></IconBase>;
+        const ShieldAlert = (props) => <IconBase {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></IconBase>;
+        const Settings = (props) => <IconBase {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></IconBase>;
+        const Eye = (props) => <IconBase {...props}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></IconBase>;
+        const Eraser = (props) => <IconBase {...props}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" /><path d="M22 21H7" /><path d="m5 11 9 9" /></IconBase>;
+
+        // --- MAPPINGS ---
+        const COLOR_MAP = {
+            '0': { hex: '#000000', name: 'Black' },
+            '1': { hex: '#0000AA', name: 'Dark Blue' },
+            '2': { hex: '#00AA00', name: 'Dark Green' },
+            '3': { hex: '#00AAAA', name: 'Dark Aqua' },
+            '4': { hex: '#AA0000', name: 'Dark Red' },
+            '5': { hex: '#AA00AA', name: 'Dark Purple' },
+            '6': { hex: '#FFAA00', name: 'Gold' },
+            '7': { hex: '#AAAAAA', name: 'Gray' },
+            '8': { hex: '#555555', name: 'Dark Gray' },
+            '9': { hex: '#5555FF', name: 'Blue' },
+            'a': { hex: '#55FF55', name: 'Green' },
+            'b': { hex: '#55FFFF', name: 'Aqua' },
+            'c': { hex: '#FF5555', name: 'Red' },
+            'd': { hex: '#FF55FF', name: 'Light Purple' },
+            'e': { hex: '#FFFF55', name: 'Yellow' },
+            'f': { hex: '#FFFFFF', name: 'White' },
+        };
+
+        const HEX_TO_CODE = Object.entries(COLOR_MAP).reduce((acc, [code, data]) => {
+            acc[data.hex.toLowerCase()] = code;
+            return acc;
+        }, {});
+
+        const rgbToHex = (rgb) => {
+            if (!rgb || rgb === 'inherit') return null;
+            if (rgb.startsWith('#')) return rgb.toLowerCase();
+            const rgbValues = rgb.match(/\d+/g);
+            if (!rgbValues) return null;
+            return '#' + rgbValues.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join('').toLowerCase();
+        };
+
+        const copyToClipboardFallback = (text, onSuccess) => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; 
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if(successful) onSuccess();
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // --- CHAT PARSER (For Live Preview) ---
+        const parseGameChat = (text) => {
+            if (!text) return { __html: '<br/>' }; 
+            
+            // Replace placeholder
+            const raw = text.replace(/{player}/gi, 'Hytale Player').replace(/{online}/gi, '10');
+
+            let output = [];
+            let styles = { color: 'f', bold: false, italic: false, underline: false, strikethrough: false };
+            
+            // Fixed Regex: Added 'i' flag for case insensitivity
+            const parts = raw.split(/(&[0-9a-fk-or])/gi);
+            
+            parts.forEach(part => {
+                if (!part) return;
+                
+                if (part.startsWith('&') && part.length === 2) {
+                    const code = part[1].toLowerCase();
+                    
+                    if (COLOR_MAP[code]) {
+                        styles.color = code;
+                        // Reset formats on color change
+                        styles.bold = false;
+                        styles.italic = false;
+                        styles.underline = false;
+                        styles.strikethrough = false;
+                    } else {
+                        switch(code) {
+                            case 'l': styles.bold = true; break;
+                            case 'o': styles.italic = true; break;
+                            case 'n': styles.underline = true; break;
+                            case 'm': styles.strikethrough = true; break;
+                            case 'r': 
+                                styles = { color: 'f', bold: false, italic: false, underline: false, strikethrough: false };
+                                break;
+                        }
+                    }
+                } else {
+                    const hex = COLOR_MAP[styles.color]?.hex || '#fff';
+                    let css = `color: ${hex}; text-shadow: 2px 2px 0px rgba(0,0,0,0.5);`;
+                    
+                    if (styles.bold) css += 'font-weight: bold;';
+                    if (styles.italic) css += 'font-style: italic;';
+                    
+                    let decoration = [];
+                    if (styles.underline) decoration.push('underline');
+                    if (styles.strikethrough) decoration.push('line-through');
+                    if (decoration.length) css += `text-decoration: ${decoration.join(' ')};`;
+                    
+                    output.push(`<span style="${css}">${part}</span>`);
+                }
+            });
+            
+            return { __html: output.join('') || '<br/>' };
+        };
+
+        // --- EDITOR COMPONENT ---
+        const MessageEditor = ({ label, initialHtml, onUpdate, isDisabled, placeholder, helpText }) => {
+            const editorRef = useRef(null);
+            const [activeFormats, setActiveFormats] = useState({
+                bold: false, italic: false, underline: false, strikethrough: false, color: 'f'
+            });
+
+            const applyFormat = (command, value = null) => {
+                if (isDisabled) return;
+                document.execCommand(command, false, value);
+                editorRef.current.focus();
+                updateActiveState();
+                handleInput();
+            };
+
+            const updateActiveState = () => {
+                if (!document || isDisabled) return;
+                setActiveFormats({
+                    bold: document.queryCommandState('bold'),
+                    italic: document.queryCommandState('italic'),
+                    underline: document.queryCommandState('underline'),
+                    strikethrough: document.queryCommandState('strikethrough'),
+                    color: document.queryCommandValue('foreColor'), 
+                });
+            };
+
+            const generateCode = () => {
+                if (!editorRef.current) return [];
+                let result = '';
+                let currentState = { color: 'f', bold: false, italic: false, underline: false, strikethrough: false };
+
+                const walk = (node, styleState) => {
+                    // Handle Block Elements as newlines
+                    const isBlock = ['DIV', 'P', 'LI'].includes(node.nodeName);
+                    if (isBlock && result.length > 0 && !result.endsWith('\n')) {
+                        result += '\n';
+                    }
+                    if (node.nodeName === 'BR') {
+                        result += '\n';
+                        return;
+                    }
+
+                    if (node.nodeType === 3) { // Text node
+                        const text = node.textContent;
+                        if (!text) return;
+
+                        let codesToEmit = '';
+                        let needsReset = false;
+
+                        if ((currentState.bold && !styleState.bold) || 
+                            (currentState.italic && !styleState.italic) || 
+                            (currentState.underline && !styleState.underline) || 
+                            (currentState.strikethrough && !styleState.strikethrough)) {
+                            needsReset = true;
+                        }
+                        
+                        if (needsReset) {
+                            codesToEmit += '&r';
+                            currentState = { color: 'f', bold: false, italic: false, underline: false, strikethrough: false };
+                        }
+
+                        // Apply Color
+                        if (styleState.color !== currentState.color) {
+                            codesToEmit += `&${styleState.color}`;
+                            currentState.color = styleState.color;
+                            
+                            // *** FIX: RESET FORMATS IN STATE WHEN COLOR CHANGES ***
+                            // Because Minecraft color codes reset formatting, we must update our virtual state to match
+                            currentState.bold = false;
+                            currentState.italic = false;
+                            currentState.underline = false;
+                            currentState.strikethrough = false;
+                        }
+
+                        // Apply Formats (Now correctly re-applies formats after color change)
+                        if (styleState.bold && !currentState.bold) { codesToEmit += '&l'; currentState.bold = true; }
+                        if (styleState.italic && !currentState.italic) { codesToEmit += '&o'; currentState.italic = true; }
+                        if (styleState.underline && !currentState.underline) { codesToEmit += '&n'; currentState.underline = true; }
+                        if (styleState.strikethrough && !currentState.strikethrough) { codesToEmit += '&m'; currentState.strikethrough = true; }
+
+                        result += codesToEmit + text;
+                    } else if (node.nodeType === 1) { // Element node
+                        const computedStyle = window.getComputedStyle(node);
+                        const colorHex = rgbToHex(computedStyle.color);
+                        let nodeColor = styleState.color;
+                        if (colorHex && HEX_TO_CODE[colorHex]) nodeColor = HEX_TO_CODE[colorHex];
+
+                        const newStyleState = {
+                            color: nodeColor,
+                            bold: styleState.bold || (computedStyle.fontWeight === 'bold' || parseInt(computedStyle.fontWeight) >= 700),
+                            italic: styleState.italic || computedStyle.fontStyle === 'italic',
+                            underline: styleState.underline || computedStyle.textDecorationLine.includes('underline'),
+                            strikethrough: styleState.strikethrough || computedStyle.textDecorationLine.includes('line-through'),
+                        };
+                        
+                        if (['B','STRONG'].includes(node.tagName)) newStyleState.bold = true;
+                        if (['I','EM'].includes(node.tagName)) newStyleState.italic = true;
+                        if (['U'].includes(node.tagName)) newStyleState.underline = true;
+                        if (['S','STRIKE'].includes(node.tagName)) newStyleState.strikethrough = true;
+                        if (node.tagName === 'FONT' && node.color) {
+                            const fontHex = rgbToHex(node.color);
+                            if (fontHex && HEX_TO_CODE[fontHex]) newStyleState.color = HEX_TO_CODE[fontHex];
+                        }
+
+                        node.childNodes.forEach(child => walk(child, newStyleState));
+                    }
+                };
+
+                editorRef.current.childNodes.forEach(child => walk(child, {
+                    color: 'f', bold: false, italic: false, underline: false, strikethrough: false
+                }));
+
+                return result.split('\n');
+            };
+
+            const handleInput = () => {
+                const lines = generateCode();
+                onUpdate(lines);
+            };
+
+            const insertVariable = (varName) => {
+                if (isDisabled) return;
+                editorRef.current.focus();
+                document.execCommand('insertText', false, `{${varName}}`);
+                handleInput();
+            };
+
+            return (
+                <div className={`border rounded-lg overflow-hidden transition-all duration-300 ${isDisabled ? 'border-slate-700 opacity-50 bg-slate-900/50' : 'border-slate-600 bg-slate-800 shadow-md'}`}>
+                <div className="bg-slate-900/50 p-2 border-b border-slate-700 flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{label}</label>
+                    {helpText && <span className="text-xs text-slate-500 italic">{helpText}</span>}
+                    </div>
+                    
+                    {!isDisabled && (
+                    <div className="flex flex-wrap gap-2 items-center">
+                        <div className="flex bg-slate-800 rounded p-1 border border-slate-700">
+                            <button onMouseDown={(e) => { e.preventDefault(); applyFormat('bold'); }} className={`p-1.5 rounded ${activeFormats.bold ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}><Bold size={14} /></button>
+                            <button onMouseDown={(e) => { e.preventDefault(); applyFormat('italic'); }} className={`p-1.5 rounded ${activeFormats.italic ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}><Italic size={14} /></button>
+                            <button onMouseDown={(e) => { e.preventDefault(); applyFormat('underline'); }} className={`p-1.5 rounded ${activeFormats.underline ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}><Underline size={14} /></button>
+                            <button onMouseDown={(e) => { e.preventDefault(); applyFormat('strikeThrough'); }} className={`p-1.5 rounded ${activeFormats.strikethrough ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-700'}`}><Strikethrough size={14} /></button>
+                            <div className="w-px h-4 bg-slate-600 mx-1 self-center"></div>
+                            <button onMouseDown={(e) => { e.preventDefault(); applyFormat('removeFormat'); }} className="p-1.5 rounded text-slate-400 hover:bg-slate-700 hover:text-red-400" title="Reset Formatting"><Eraser size={14} /></button>
+                        </div>
+                        
+                        <div className="flex gap-1">
+                        {Object.entries(COLOR_MAP).slice(0, 8).map(([code, { hex }]) => (
+                            <button key={code} onMouseDown={(e) => { e.preventDefault(); applyFormat('foreColor', hex); }} className="w-4 h-4 rounded-full border border-slate-600" style={{ backgroundColor: hex }} />
+                        ))}
+                        {Object.entries(COLOR_MAP).slice(8).map(([code, { hex }]) => (
+                            <button key={code} onMouseDown={(e) => { e.preventDefault(); applyFormat('foreColor', hex); }} className="w-4 h-4 rounded-full border border-slate-600" style={{ backgroundColor: hex }} />
+                        ))}
+                        </div>
+                        <button onClick={() => insertVariable('player')} className="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-[10px] text-white font-mono">{'{player}'}</button>
+                    </div>
+                    )}
+                </div>
+
+                <div 
+                    className="p-4 min-h-[60px] text-base outline-none font-medium"
+                    contentEditable={!isDisabled}
+                    ref={editorRef}
+                    onInput={handleInput}
+                    onKeyUp={updateActiveState}
+                    onMouseUp={updateActiveState}
+                    suppressContentEditableWarning={true}
+                    style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    color: isDisabled ? '#555' : '#FFFFFF',
+                    cursor: isDisabled ? 'not-allowed' : 'text'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: initialHtml }}
+                />
+                </div>
+            );
+        };
+
+        // --- MAIN CONFIGURATOR APP ---
+        function WelcomeTaleConfigurator() {
+            // Updated defaults to multiline arrays based on user feedback
+            const [joinMsg, setJoinMsg] = useState({
+                enabled: true,
+                code: ['', '&2&l > &2{player} &a joined!', ''],
+                html: '<div><br></div><div><span style="color: #00AA00; font-weight: bold;"> &gt; </span><span style="color: #00AA00;">{player} </span><span style="color: #55FF55;">joined!</span></div><div><br></div>'
+            });
+
+            const [leaveMsg, setLeaveMsg] = useState({
+                enabled: true,
+                code: ['', '&4&l > &4{player} &c left...', ''],
+                html: '<div><br></div><div><span style="color: #AA0000; font-weight: bold;"> &gt; </span><span style="color: #AA0000;">{player} </span><span style="color: #FF5555;">left...</span></div><div><br></div>'
+            });
+
+            const [welcomeMsg, setWelcomeMsg] = useState({
+                enabled: true,
+                code: [
+                    "",
+                    "&6&l=====================================",
+                    "&e&lWelcome to Our Server!",
+                    "&6&l=====================================",
+                    "",
+                    "&7Happy to see you here, &b{player}&7!",
+                    "&7Get ready for an &e&lamazing adventure &r&7ahead.",
+                    "",
+                    "&6&l> &6Join our community:",
+                    "&7  - Website: &ehttps://rmaafs.com",
+                    "&7  - GitHub: &ehttps://github.com/rmaafs/WelcomeTale",
+                    "",
+                    "&6Enjoy your stay and have fun! :)",
+                    ""
+                ],
+                html: '<div><br></div><div><span style="color: #FFAA00; font-weight: bold;">=====================================</span></div><div><span style="color: #FFFF55; font-weight: bold;">Welcome to Our Server!</span></div><div><span style="color: #FFAA00; font-weight: bold;">=====================================</span></div><div><br></div><div><span style="color: #AAAAAA;">Happy to see you here, </span><span style="color: #55FFFF;">{player}</span><span style="color: #AAAAAA;">!</span></div><div><span style="color: #AAAAAA;">Get ready for an </span><span style="color: #FFFF55; font-weight: bold;">amazing adventure </span><span style="color: #AAAAAA;">ahead.</span></div><div><br></div><div><span style="color: #FFAA00; font-weight: bold;">&gt; </span><span style="color: #FFAA00;">Join our community:</span></div><div><span style="color: #AAAAAA;">  - Website: </span><span style="color: #FFFF55;">https://rmaafs.com</span></div><div><span style="color: #AAAAAA;">  - GitHub: </span><span style="color: #FFFF55;">https://github.com/rmaafs/WelcomeTale</span></div><div><br></div><div><span style="color: #FFAA00;">Enjoy your stay and have fun! :)</span></div><div><br></div>'
+            });
+
+            const [disableDefaultJoin, setDisableDefaultJoin] = useState(true);
+            const [checkUpdates, setCheckUpdates] = useState(true);
+            
+            // System messages remain single strings per user config structure
+            const [msgReloaded, setMsgReloaded] = useState({
+                code: ['&aConfiguration reloaded successfully!'],
+                html: '<span style="color: #55FF55;">Configuration reloaded successfully!</span>'
+            });
+            
+            const [msgNoPerm, setMsgNoPerm] = useState({
+                code: ['&cYou don\'t have permission to use this command!'],
+                html: '<span style="color: #FF5555;">You don\'t have permission to use this command!</span>'
+            });
+
+            const [finalJson, setFinalJson] = useState('');
+            const [copied, setCopied] = useState(false);
+
+            useEffect(() => {
+                const config = {
+                DisableDefaultJoinMessage: disableDefaultJoin,
+                // These are now arrays of strings
+                JoinMessage: joinMsg.enabled ? joinMsg.code : [],
+                LeaveMessage: leaveMsg.enabled ? leaveMsg.code : [],
+                WelcomePlayerMessage: welcomeMsg.enabled ? welcomeMsg.code : [],
+                // These are single strings
+                MessageReloaded: msgReloaded.code[0] || "",
+                NoPermission: msgNoPerm.code[0] || "",
+                CheckForUpdates: checkUpdates
+                };
+                setFinalJson(JSON.stringify(config, null, 2));
+            }, [joinMsg, leaveMsg, welcomeMsg, disableDefaultJoin, checkUpdates, msgReloaded, msgNoPerm]);
+
+            const copyToClipboard = () => {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(finalJson).then(() => {
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                    }).catch(() => {
+                        copyToClipboardFallback(finalJson, () => {
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                        });
+                    });
+                } else {
+                    copyToClipboardFallback(finalJson, () => {
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                    });
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col lg:flex-row lg:h-screen lg:overflow-hidden">
+                
+                {/* COLUMN 1: Config Editor */}
+                <div className="flex-1 min-w-[320px] p-6 overflow-y-auto border-r border-slate-800 scrollbar-thin scrollbar-thumb-slate-700">
+                    <div className="max-w-3xl mx-auto space-y-8 pb-20">
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
+                        <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">WelcomeTale</span>
+                        <span>Configurator</span>
+                        </h1>
+                        <p className="text-slate-400">Generate your <code className="bg-slate-800 px-1 py-0.5 rounded text-slate-300">config.json</code> file visually.</p>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-white border-b border-slate-800 pb-2 flex items-center gap-2">
+                        <Settings size={20} className="text-emerald-500"/> General Settings
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label className="flex items-start gap-3 p-4 bg-slate-900 rounded-lg border border-slate-800 cursor-pointer hover:border-slate-600 transition-colors">
+                            <input type="checkbox" className="mt-1 w-4 h-4 accent-emerald-500 rounded bg-slate-800 border-slate-600"
+                            checked={disableDefaultJoin} onChange={(e) => setDisableDefaultJoin(e.target.checked)}/>
+                            <div>
+                            <span className="font-medium text-white block">Disable Default Join Message</span>
+                            <span className="text-xs text-slate-500 block mt-1">Hides the standard Hytale/Minecraft yellow join text so only yours is shown.</span>
+                            </div>
+                        </label>
+                        <label className="flex items-start gap-3 p-4 bg-slate-900 rounded-lg border border-slate-800 cursor-pointer hover:border-slate-600 transition-colors">
+                            <input type="checkbox" className="mt-1 w-4 h-4 accent-emerald-500 rounded bg-slate-800 border-slate-600"
+                            checked={checkUpdates} onChange={(e) => setCheckUpdates(e.target.checked)}/>
+                            <div>
+                            <span className="font-medium text-white block">Check For Updates</span>
+                            <span className="text-xs text-slate-500 block mt-1">Automatically check GitHub for new versions on startup.</span>
+                            </div>
+                        </label>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-white border-b border-slate-800 pb-2 flex items-center gap-2">
+                        <Terminal size={20} className="text-emerald-500"/> Broadcasts & Welcomes
+                        </h2>
+
+                        <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <div><h3 className="font-medium text-white">Join Message</h3><p className="text-xs text-slate-500">Sent to all players when someone joins.</p></div>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-xs font-bold text-slate-400 uppercase">{joinMsg.enabled ? 'Enabled' : 'Disabled'}</span>
+                            <div className={`w-10 h-5 rounded-full p-0.5 transition-colors ${joinMsg.enabled ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                                <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${joinMsg.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                            </div>
+                            <input type="checkbox" className="hidden" checked={joinMsg.enabled} onChange={e => setJoinMsg({...joinMsg, enabled: e.target.checked})} />
+                            </label>
+                        </div>
+                        <MessageEditor label="Message Content" initialHtml={joinMsg.html} isDisabled={!joinMsg.enabled} onUpdate={(val) => setJoinMsg(prev => ({ ...prev, code: val }))}/>
+                        </div>
+
+                        <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <div><h3 className="font-medium text-white">Leave Message</h3><p className="text-xs text-slate-500">Sent to all players when someone leaves.</p></div>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-xs font-bold text-slate-400 uppercase">{leaveMsg.enabled ? 'Enabled' : 'Disabled'}</span>
+                            <div className={`w-10 h-5 rounded-full p-0.5 transition-colors ${leaveMsg.enabled ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                                <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${leaveMsg.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                            </div>
+                            <input type="checkbox" className="hidden" checked={leaveMsg.enabled} onChange={e => setLeaveMsg({...leaveMsg, enabled: e.target.checked})} />
+                            </label>
+                        </div>
+                        <MessageEditor label="Message Content" initialHtml={leaveMsg.html} isDisabled={!leaveMsg.enabled} onUpdate={(val) => setLeaveMsg(prev => ({ ...prev, code: val }))}/>
+                        </div>
+
+                        <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <div><h3 className="font-medium text-white">Private Welcome</h3><p className="text-xs text-slate-500">Sent ONLY to the player who joined.</p></div>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-xs font-bold text-slate-400 uppercase">{welcomeMsg.enabled ? 'Enabled' : 'Disabled'}</span>
+                            <div className={`w-10 h-5 rounded-full p-0.5 transition-colors ${welcomeMsg.enabled ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                                <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${welcomeMsg.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                            </div>
+                            <input type="checkbox" className="hidden" checked={welcomeMsg.enabled} onChange={e => setWelcomeMsg({...welcomeMsg, enabled: e.target.checked})} />
+                            </label>
+                        </div>
+                        <MessageEditor label="Message Content" initialHtml={welcomeMsg.html} isDisabled={!welcomeMsg.enabled} onUpdate={(val) => setWelcomeMsg(prev => ({ ...prev, code: val }))}/>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-white border-b border-slate-800 pb-2 flex items-center gap-2">
+                        <ShieldAlert size={20} className="text-emerald-500"/> System Messages
+                        </h2>
+                        <div className="space-y-3">
+                            <div><h3 className="font-medium text-white">Reload Message</h3><p className="text-xs text-slate-500">Displayed when an admin reloads the config.</p></div>
+                            <MessageEditor label="Message Content" initialHtml={msgReloaded.html} isDisabled={false} onUpdate={(val) => setMsgReloaded(prev => ({ ...prev, code: val }))}/>
+                        </div>
+                        <div className="space-y-3">
+                            <div><h3 className="font-medium text-white">No Permission Message</h3><p className="text-xs text-slate-500">Displayed when a user tries a command without rights.</p></div>
+                            <MessageEditor label="Message Content" initialHtml={msgNoPerm.html} isDisabled={false} onUpdate={(val) => setMsgNoPerm(prev => ({ ...prev, code: val }))}/>
+                        </div>
+                    </div>
+
+                    </div>
+                </div>
+
+                {/* COLUMN 2: In-Game Preview (Center) */}
+                <div className="flex-1 min-w-[320px] p-6 bg-slate-900 flex flex-col border-r border-slate-800 lg:h-screen lg:overflow-y-auto">
+                    <div className="mb-4">
+                        <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-2"><Eye size={18} /> In-Game Preview</h2>
+                        <div className="bg-slate-900/80 border border-slate-700 rounded-lg p-4 font-sans leading-snug shadow-inner text-lg" style={{ fontFamily: '"Minecraft", "Segoe UI", sans-serif' }}>
+                            <div className="text-xs text-slate-500 mb-2 uppercase tracking-wider font-bold">Chat Box</div>
+                            
+                            {joinMsg.enabled && joinMsg.code.map((line, i) => (
+                                <div key={'join'+i} className="mb-0.5 min-h-[1.5rem]" dangerouslySetInnerHTML={parseGameChat(line)} />
+                            ))}
+
+                            {/* Divider if needed */}
+                            {joinMsg.enabled && welcomeMsg.enabled && <div className="h-2"></div>}
+                            
+                            {welcomeMsg.enabled && welcomeMsg.code.map((line, i) => (
+                                <div key={'welcome'+i} className="mb-0.5 min-h-[1.5rem]" dangerouslySetInnerHTML={parseGameChat(line)} />
+                            ))}
+                             
+                            {leaveMsg.enabled && (joinMsg.enabled || welcomeMsg.enabled) && <div className="h-4"></div>}
+                            
+                            {leaveMsg.enabled && leaveMsg.code.map((line, i) => (
+                                <div key={'leave'+i} className="mb-0.5 min-h-[1.5rem]" dangerouslySetInnerHTML={parseGameChat(line)} />
+                            ))}
+                            
+                            {!joinMsg.enabled && !welcomeMsg.enabled && !leaveMsg.enabled && (
+                                <span className="text-slate-600 italic text-sm">No broadcast messages enabled.</span>
+                            )}
+                        </div>
+                    </div>
+                    <p className="text-sm text-slate-400 mt-2">This preview simulates how your messages will look in the Hytale chat window. Color codes are rendered, and placeholders like <code>{'{player}'}</code> are replaced with example data.</p>
+                </div>
+
+                {/* COLUMN 3: Generated Config (Right) */}
+                <div className="flex-1 min-w-[320px] p-6 bg-slate-950 flex flex-col lg:h-screen lg:overflow-hidden">
+                    <div className="mb-4">
+                        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Save size={18} /> Generated Config</h2>
+                        <p className="text-xs text-slate-500 mt-1">Copy this into your <code className="text-emerald-400">config.json</code></p>
+                    </div>
+
+                    <div className="flex-1 relative bg-slate-950 rounded-lg border border-slate-800 overflow-hidden flex flex-col">
+                        <pre className="flex-1 p-4 font-mono text-xs text-emerald-300 overflow-auto whitespace-pre">{finalJson}</pre>
+                        <div className="p-3 bg-slate-900 border-t border-slate-800">
+                            <button onClick={copyToClipboard} className={`w-full py-2.5 rounded font-bold text-sm shadow-lg transition-all duration-200 flex items-center justify-center gap-2 ${copied ? 'bg-emerald-600 text-white' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}>
+                                {copied ? <Check size={16} /> : <Copy size={16} />}
+                                {copied ? 'Copied to Clipboard!' : 'Copy Config'}
+                            </button>
+                        </div>
+                    </div>
+                    <div className="mt-4 p-3 bg-slate-800/50 rounded border border-slate-800/50 text-xs text-slate-400">
+                        <strong>Tip:</strong> If you disable a message, it will be saved as an empty array <code className="text-slate-200">[]</code>, preventing the server from sending anything.
+                    </div>
+                </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<WelcomeTaleConfigurator />);
+    </script>
+</body>
+</html>
